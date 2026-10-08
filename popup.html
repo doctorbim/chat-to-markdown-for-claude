@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Chat to Markdown</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #faf9f5; --card: #ffffff; --line: #e8e3d8; --text: #292724; --muted: #6b665d;
+      --accent: #a65c3d; --accent-hover: #8f4d32; --accent-soft: #f4e6df; --on-accent: #fff; --switch-off: #cdc6b8;
+      --ok: #2f6b3a; --ok-bg: #e7f2e8; --err: #a33a2a; --err-bg: #fbe9e6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1f1e1c; --card: #2a2926; --line: #3a3834; --text: #ece9e2; --muted: #a39e94;
+        --accent: #d9825f; --accent-hover: #e6987a; --accent-soft: #3a2b24; --on-accent: #1f1e1c; --switch-off: #4a4741;
+        --ok: #8fd19b; --ok-bg: #213126; --err: #f0a092; --err-bg: #3a2422;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { width: 320px; margin: 0; padding: 14px; font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: var(--bg); }
+    header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    header img { width: 32px; height: 32px; }
+    h1 { font-size: 15px; margin: 0; font-weight: 650; }
+    header p { margin: 0; color: var(--muted); font-size: 12px; }
+    small { display: block; color: var(--muted); font-size: 11.5px; }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 4px 12px; margin-bottom: 12px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; cursor: pointer; }
+    .row + .row { border-top: 1px solid var(--line); }
+
+    /* Switch: a styled checkbox, so keyboard and screen readers work as normal. */
+    .switch { appearance: none; flex: none; width: 32px; height: 18px; margin: 0; border-radius: 9px; background: var(--switch-off); position: relative; cursor: pointer; }
+    .ready .switch { transition: background .15s; }
+    .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / .25); }
+    .ready .switch::after { transition: transform .15s; }
+    .switch:checked { background: var(--accent); }
+    .switch:checked::after { transform: translateX(14px); }
+
+    .notes { padding: 8px 0 10px; border-top: 1px solid var(--line); }
+    .notes-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .segmented { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 7px; padding: 2px; gap: 2px; position: relative; }
+    .segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .segmented label { text-align: center; padding: 4px 0; border-radius: 5px; cursor: pointer; color: var(--muted); }
+    .segmented input:checked + label { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+    .segmented input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    button { width: 100%; font: inherit; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+    #export { padding: 10px; background: var(--accent); color: var(--on-accent); border: 0; }
+    #export:hover:not(:disabled) { background: var(--accent-hover); }
+    #raw { margin-top: 6px; padding: 6px; background: none; border: 0; color: var(--muted); font-weight: 500; font-size: 12px; }
+    #raw:hover:not(:disabled) { color: var(--accent); }
+    button:disabled { opacity: .6; cursor: progress; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    #status { margin: 10px 0 0; padding: 8px 10px; border-radius: 7px; font-size: 12px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+    #status[data-state="busy"] { background: var(--accent-soft); color: var(--text); }
+    #status[data-state="ok"] { background: var(--ok-bg); color: var(--ok); }
+    #status[data-state="error"] { background: var(--err-bg); color: var(--err); }
+    footer { margin-top: 8px; text-align: center; color: var(--muted); font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="icons/icon48.png" alt="">
+    <div>
+      <h1>Chat to Markdown</h1>
+      <p>Export this claude.ai conversation</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <label class="row"><span>Front matter<small>Title, dates and model as YAML</small></span><input type="checkbox" class="switch" id="frontMatter"></label>
+    <label class="row"><span>Timestamps<small>Time under each message</small></span><input type="checkbox" class="switch" id="timestamps"></label>
+    <label class="row"><span>Files Claude wrote<small>Contents of created files</small></span><input type="checkbox" class="switch" id="files"></label>
+    <label class="row"><span>Attachment text<small>Extracted text, collapsed</small></span><input type="checkbox" class="switch" id="attachmentText"></label>
+    <label class="row"><span>Thinking<small>Step summaries, collapsed</small></span><input type="checkbox" class="switch" id="thinking"></label>
+    <div class="notes">
+      <div class="notes-label"><span id="narrationLabel">Working notes</span><small>Text between tool calls</small></div>
+      <div class="segmented" role="radiogroup" aria-labelledby="narrationLabel">
+        <input type="radio" name="narration" id="n-collapse" value="collapse"><label for="n-collapse">Collapse</label>
+        <input type="radio" name="narration" id="n-show" value="show"><label for="n-show">Show</label>
+        <input type="radio" name="narration" id="n-hide" value="hide"><label for="n-hide">Hide</label>
+      </div>
+    </div>
+  </div>
+
+  <button id="export">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Download Markdown
+  </button>
+  <button id="raw">Save raw JSON instead</button>
+  <p id="status" role="status" aria-live="polite">Runs only when you click. Nothing leaves your browser.</p>
+  <footer>Independent project · not affiliated with Anthropic</footer>
+  <script src="convert.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

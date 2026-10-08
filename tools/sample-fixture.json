@@ -1,0 +1,26 @@
+{
+  "name": "Sourdough starter schedule",
+  "created_at": "2026-10-06T09:12:00Z",
+  "updated_at": "2026-10-06T09:20:00Z",
+  "model": "claude-sonnet",
+  "current_leaf_message_uuid": "m4",
+  "chat_messages": [
+    { "uuid": "m1", "parent_message_uuid": "00000000-0000-4000-8000-000000000000", "sender": "human", "created_at": "2026-10-06T09:12:00Z",
+      "content": [{ "type": "text", "text": "Can you make me a feeding schedule for a new sourdough starter? I bake on Saturdays." }],
+      "attachments": [], "files": [] },
+    { "uuid": "m2", "parent_message_uuid": "m1", "sender": "assistant", "created_at": "2026-10-06T09:12:30Z",
+      "content": [
+        { "type": "thinking", "thinking": "", "thinking_hidden": true, "summaries": [{ "summary": "Working backwards from a Saturday bake" }, { "summary": "Planning 1:1:1 feeds, then a levain build Friday night" }] },
+        { "type": "text", "text": "I'll put the schedule in a file you can print." },
+        { "type": "tool_use", "name": "create_file", "id": "t1", "input": { "path": "/mnt/user-data/outputs/starter-schedule.md", "file_text": "| Day | Morning | Evening |\n|---|---|---|\n| Mon–Thu | Discard, feed 1:1:1 | — |\n| Fri | Feed 1:1:1 | Build levain 1:5:5 |\n| Sat | Mix dough 9am | Bake |\n" } },
+        { "type": "tool_result", "tool_use_id": "t1", "name": "create_file", "content": [{ "type": "text", "text": "File created" }] },
+        { "type": "text", "text": "Here's a week that lands on a Saturday bake:\n\n- **Mon–Thu:** discard all but 50 g, then feed 1:1:1 (starter : flour : water) once a day.\n- **Friday evening:** build the levain at 1:5:5 so it peaks overnight.\n- **Saturday 9 am:** mix the dough when the levain has doubled and smells mildly sour.\n\nIf your kitchen is below 22 °C, add a second feed on Thursday." }
+      ],
+      "attachments": [], "files": [] },
+    { "uuid": "m3", "parent_message_uuid": "m2", "sender": "human", "created_at": "2026-10-06T09:19:00Z",
+      "content": [{ "type": "text", "text": "Perfect. How do I know it's ready?" }], "attachments": [], "files": [] },
+    { "uuid": "m4", "parent_message_uuid": "m3", "sender": "assistant", "created_at": "2026-10-06T09:19:20Z",
+      "content": [{ "type": "text", "text": "Use the float test: drop a spoonful in water. If it floats, the starter is active enough to raise bread. It should also have doubled within 4–8 hours of a feed." }],
+      "attachments": [], "files": [] }
+  ]
+}
