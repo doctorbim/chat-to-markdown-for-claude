@@ -68,4 +68,4 @@ No build step. The extension is `manifest.json`, `popup.html`, `popup.js`, `conv
 
 ---
 
-Independent project. Not affiliated with, endorsed by, or sponsored by Anthropic. Claude is a trademark of Anthropic, PBC.
+MIT licensed. Independent project, not affiliated with, endorsed by, or sponsored by Anthropic. Claude is a trademark of Anthropic, PBC.
