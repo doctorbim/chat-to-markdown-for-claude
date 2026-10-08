@@ -1,4 +1,4 @@
-# Privacy policy — Chat to Markdown for Claude
+# Privacy policy - Chat to Markdown for Claude
 
 _Last updated: 2026-10-08_
 
