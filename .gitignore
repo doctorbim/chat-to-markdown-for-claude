@@ -2,3 +2,4 @@ dist/
 store/screenshot.html
 __pycache__/
 *.local.*
+CHROMEWEBSTORE.md

@@ -1,34 +1,71 @@
-# Chat to Markdown for Claude
+<p align="center"><img src="icons/icon128.png" width="96" alt=""></p>
 
-A small, independently written Chrome extension that downloads the open claude.ai conversation as Markdown. No build tools or API key required. Not affiliated with Anthropic.
+<h1 align="center">Chat to Markdown for Claude</h1>
 
-## Install
+<p align="center">Save any claude.ai conversation as a clean Markdown file, in one click.<br>
+Runs only when you click it. Nothing leaves your browser.</p>
 
-1. Open `chrome://extensions` in Chrome.
-2. Turn on **Developer mode**.
-3. Click **Load unpacked** and select this `claude-markdown` folder.
-4. Open a conversation on `https://claude.ai/chat/…` while signed in.
-5. Click the extension (pin it using Chrome's puzzle-piece menu) and **Download Markdown**. Keep the popup open until the download starts.
+<p align="center"><b>Chrome Web Store: coming soon</b> (in review)</p>
 
-After editing files, click the extension's Reload button on `chrome://extensions`.
+![The popup next to an exported Markdown file](store/screenshot-1280x800.png)
 
-## Behavior and limits
+## Features
 
-- Uses `activeTab` and `scripting`; runs only after you click. No persistent site access, background worker, telemetry, or external server.
-- Reads Claude's organization list and this chat using your existing browser session. Does not read or store session cookies directly.
-- Walks each message's content blocks in order. Text written between tool calls is treated as working notes (collapse/show/hide); text after the last working tool call is the reply. `present_files`-style calls that only hand over files don't count as work.
-- claude.ai sends thinking with the full text hidden (`thinking_hidden`, empty `thinking`), so the Thinking option exports the visible step summaries instead.
-- Options (remembered between uses): YAML front matter, per-message timestamps, files Claude wrote via tools (memory writes are skipped), extracted text of attached files, thinking blocks.
-- Attachments are always listed by name and size. Binaries, tool output, and skipped blocks are counted in a "Not included" line at the top.
-- Edited chats: follows parent links back from `current_leaf_message_uuid`, so only the branch on screen is exported. If the current leaf isn't reported, export stops rather than mixing branches.
-- **Save raw JSON** downloads the unmodified response. Use it to check field names when Claude changes the endpoint.
-- Claude's private website endpoints can change. This is not the supported Anthropic developer API.
-- Live login, download behavior, and edited conversation branch behavior require verification in Chrome. No live account test was performed during creation.
+- **Clean structure.** “You” / “Claude” headings, with optional timestamps and YAML front matter (title, dates, model).
+- **Files Claude created** are included as code blocks with the right language.
+- **Working notes.** The text Claude writes between tool calls can be collapsed, shown, or hidden.
+- **Thinking summaries and attachment text**, optional, in collapsible blocks.
+- **Pasted terminal output keeps its formatting** in your own messages.
+- **Edited chats** export only the branch you're looking at.
+- **Attachments** are listed by name and size. A “Not included” line counts anything left out.
+- **Save raw JSON** if you want the complete data.
 
-## Project layout
+Your option choices are remembered between exports.
 
-- Extension (what ships): `manifest.json`, `popup.html`, `popup.js`, `convert.js`, `icons/`.
-- `tools/make_icons.py`: redraws the icons and the promo tile (needs Pillow).
-- `tools/make_screenshot.js` + `tools/sample-fixture.json`: builds the store screenshot from a synthetic chat. The fixture also works as a converter test: `node -e "const {toMarkdown}=require('./convert.js'); console.log(toMarkdown(require('./tools/sample-fixture.json'),'url',{}))"`
-- `tools/pack.ps1`: builds `dist/chat-to-markdown-<version>.zip` for the Chrome Web Store.
-- `CHROMEWEBSTORE.md`: listing text, permission justifications and privacy answers for the dashboard. `PRIVACY.md`: the privacy policy to host publicly.
+## How to use
+
+1. Open a conversation on [claude.ai](https://claude.ai).
+2. Click the extension icon. Pin it from Chrome's puzzle-piece menu so it's always visible.
+3. Choose your options and click **Download Markdown**.
+
+The file is named `YYYY-MM-DD Chat title.md` and goes to your normal Downloads folder.
+
+## Privacy
+
+- No background process and no access to any site until you click the icon.
+- The chat is read using your existing claude.ai session and converted **inside your browser**.
+- Nothing is sent to the developer or anyone else. No analytics or tracking.
+- Permissions: `activeTab` (the current tab, only after you click) and `scripting` (to run the export in that tab).
+
+Full policy: [PRIVACY.md](PRIVACY.md).
+
+## Limitations
+
+- Works on claude.ai conversations in Chrome (and other Chromium browsers).
+- It reads the same data the claude.ai website uses, which isn't an official API. If claude.ai changes, exports may break until the extension is updated.
+- Images and other binary files are listed, not embedded.
+- Thinking is exported as the step summaries claude.ai shows, not full text.
+
+## Problems or ideas
+
+[Open an issue](../../issues/new/choose). **Don't paste private conversations.** Describe the problem, or use a test chat with nothing sensitive in it.
+
+## Install from source
+
+1. Download this repository (**Code → Download ZIP**) and unzip it.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and select the unzipped folder.
+
+## Development
+
+No build step. The extension is `manifest.json`, `popup.html`, `popup.js`, `convert.js` and `icons/`.
+
+- `convert.js` holds all the conversion logic. It has no DOM dependency, so it runs in Node:
+  `node -e "const {toMarkdown}=require('./convert.js'); console.log(toMarkdown(require('./tools/sample-fixture.json'),'url',{}))"`
+- `tools/make_icons.py` redraws the icons and promo tile (needs Pillow).
+- `tools/make_screenshot.js` builds the store screenshot from the synthetic `tools/sample-fixture.json`.
+- `tools/pack.ps1` builds the Chrome Web Store zip into `dist/`.
+
+---
+
+Independent project. Not affiliated with, endorsed by, or sponsored by Anthropic. Claude is a trademark of Anthropic, PBC.
